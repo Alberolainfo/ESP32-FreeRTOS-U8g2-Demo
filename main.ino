@@ -86,11 +86,11 @@ void monThread(void *params)
   {
     if(digitalRead(BOUTON) == LOW)
     {
-      if (xSemaphoreTake(mutex, portMAX_DELAY))
+      if (xSemaphoreTake(mutex, portMAX_DELAY))// Vérification si le mutex est libre / Check if mutex is free
       {
         display_screen("OK");
         vTaskDelay(pdMS_TO_TICKS(2000)); // Attend 2000 ms (2 secondes) sans bloquer le CPU / Waits 2000 ms (2 seconds) without blocking the CPU
-        xSemaphoreGive(mutex);
+        xSemaphoreGive(mutex);// Libère le mutex / Release mutex
       }
     }
   }
@@ -126,19 +126,24 @@ void setup()
 
 void loop() 
 { 
+  // Conversion du compteur en texte / Convert compteur to text
   char text[10];
   sprintf(text, "%d", compteur);
+
+  // màj de l'écran si mutex libre / Update display if mutex is free
   if (xSemaphoreTake(mutex, 0) == pdTRUE)
   {
     display_screen(text);
-    xSemaphoreGive(mutex);
+    xSemaphoreGive(mutex);// Libère le mutex / Release mutex
   }
 
+  // Gestion du chronomètre / Handle timer
   unsigned long currentMillis = millis();
   if(currentMillis - previousMillis >= 1000)
   {
     previousMillis = currentMillis;
     compteur++;
   }
-  vTaskDelay(pdMS_TO_TICKS(10));
+
+  vTaskDelay(pdMS_TO_TICKS(10));// Pause courte non bloquante / Short non-blocking delay
 }
